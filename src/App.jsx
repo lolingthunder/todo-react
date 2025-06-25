@@ -1,32 +1,21 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useReducer, useState} from 'react';
 import TodoList from "./components/TodoList.jsx";
 import {TodoContext} from "./context/TodoContext.jsx";
+import {todoReducer} from "./context/todoReducer.jsx";
 
 function App() {
+
     const [task, setTask] = useState('');
-    const [todos, setTodos] = useState(
-        JSON.parse(localStorage.getItem('todos')) ?? []);
+
     const [toggleList, setToggleList] = useState(
         JSON.parse(localStorage.getItem('toggleList')) ?? false);
 
-    const handleAdd = () => {
-        if (!task.trim()) return;
-        setTodos([...todos, {text: task, done: false, time: new Date().toLocaleString()}]);
-        setTask('');
-    };
+    const [todos, dispatch] = useReducer(todoReducer, [], () => {
+        const local = localStorage.getItem('todos');
+        return local ? JSON.parse(local) : [];
+    });
 
-    const handleEdit = (index, value, isDone) => {
-        const updatedTodos = [...todos];
-        updatedTodos[index] = {...updatedTodos[index], text: value, done: isDone};
-        setTodos(updatedTodos);
-    };
-    const handleDelete = (index) => {
-        const filtered = todos.filter((_, i) => i !== index);
-        setTodos(filtered);
-    };
-    const onInputChange = (task) => {
-        setTask(task)
-    }
+    const onInputChange = (task) => setTask(task)
     const toggleVisibility = () => setToggleList(prev => !prev);
 
     useEffect(() => {
@@ -49,8 +38,18 @@ function App() {
                         value={task}
                         onChange={(e) => onInputChange(e.target.value)}
                     />
-                    <button className="btn btn-primary" onClick={handleAdd} disabled={!task.trim()}>
-                        Add
+                    <button onClick={() => {
+                        dispatch({
+                            type: 'ADD_TODO',
+                            payload: {
+                                id: crypto.randomUUID(),
+                                text: task,
+                                done: false,
+                                time: new Date().toLocaleString()
+                            }
+                        });
+                        setTask('');
+                    }}>Add
                     </button>
                 </div>
                 <div className="mt-4">
@@ -61,7 +60,7 @@ function App() {
                     </label>
                 </div>
                 {toggleList &&
-                    <TodoContext.Provider value={{todos, handleEdit, handleDelete}}>
+                    <TodoContext.Provider value={{todos, dispatch}}>
                         <TodoList/>
                     </TodoContext.Provider>
                 }

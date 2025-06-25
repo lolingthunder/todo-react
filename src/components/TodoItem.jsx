@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {useTodo} from "../context/TodoContext.jsx";
 
-function TodoItem({todo, index}) {
-    const {handleEdit, handleDelete} = useTodo();
+function TodoItem({todo}) {
+    const { dispatch } = useTodo();
     const [toggleInput, setToggleInput] = useState(false)
     const [editedInput, setEditedInput] = useState('')
 
@@ -19,10 +19,16 @@ function TodoItem({todo, index}) {
                         <input
                             type="checkbox"
                             checked={todo.done}
-                            onChange={() => handleEdit(index, todo.text, !todo.done)}
+                            onChange={() => dispatch({
+                                type: 'SELECT_DONE_TODO',
+                                payload: {
+                                    id: todo.id,
+                                    done: !todo.done,
+                                }
+                            })}
                             className="checkbox checkbox-sm mr-2 mb-1"
                         />
-                        <span { ...todo.done && { className: 'line-through'} }>{todo.time}</span>
+                        <span {...todo.done && {className: 'line-through'}}>{todo.time}</span>
                         <button className="btn-circle btn-primary btn btn-xs ml-2 mb-1 text-white p-1"
                                 onClick={() => handleEditItem(!toggleInput, todo.text)}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
@@ -32,7 +38,12 @@ function TodoItem({todo, index}) {
                             </svg>
                         </button>
                         <button className="btn-circle btn-error btn btn-xs ml-2 mb-1 text-white p-1"
-                                onClick={() => handleDelete(index)}>
+                                onClick={() => dispatch({
+                                        type: 'DELETE_TODO',
+                                        payload: {
+                                            id: todo.id,
+                                        }
+                                    })}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
                                  stroke="currentColor" className="size-6">
                                 <path strokeLinecap="round" strokeLinejoin="round"
@@ -48,8 +59,16 @@ function TodoItem({todo, index}) {
                                        onChange={(e) => setEditedInput(e.target.value)}/>
                                 <button className="btn btn-soft btn-info btn-sm"
                                         onClick={() => {
-                                            handleEdit(index, editedInput, todo.done);
                                             setToggleInput(!toggleInput);
+                                            dispatch({
+                                                type: 'EDIT_TODO',
+                                                payload: {
+                                                    id: todo.id,
+                                                    text: editedInput,
+                                                    done: todo.done,
+                                                    time: new Date().toLocaleString()
+                                                }
+                                            })
                                         }}>Confirm
                                 </button>
                             </div>

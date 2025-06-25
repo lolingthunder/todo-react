@@ -8,7 +8,7 @@ function TodoList() {
         <>
             <ul className="list bg-base-100 rounded-box shadow-md mt-4">
                 {todos.map((todo, i) => (
-                    <TodoItem key={i} index={i} todo={todo}/>
+                    <TodoItem key={i} todo={todo}/>
                 ))}
             </ul>
         </>
