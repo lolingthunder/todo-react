@@ -20,10 +20,12 @@ function TodoInput() {
                 }}
                 onChange={(e) => onInputChange(e.target.value)}
             />
-            <button className="btn btn-primary" onClick={() => {
+            <button className="btn btn-primary"
+                    disabled={!task.trim()}
+                    onClick={() => {
                 addTodo(task)
                 setTask('');
-            }}> Add
+            }}> add
             </button>
         </>
     );

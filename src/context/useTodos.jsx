@@ -3,37 +3,69 @@ import { useTodo } from "./TodoContext";
 function useTodos() {
   const { todos, dispatch } = useTodo();
 
-  const addTodo = (text) => {
-    dispatch({
-      type: 'ADD_TODO',
-      payload: {
-        id: crypto.randomUUID(),
-        text,
-        done: false,
-        time: new Date().toLocaleString()
-      }
+  const addTodo = async (text) => {
+    const payload = {
+      id: crypto.randomUUID(),
+      text,
+      done: false,
+      time: new Date().toLocaleString()
+    };
+
+    await fetch('http://localhost:3000/todos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
     });
+
+    dispatch({type: 'ADD_TODO', payload: payload});
   };
 
-  const deleteTodo = (id) => {
+  const deleteTodo = async (id) => {
+    await fetch(`http://localhost:3000/todos/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
     dispatch({
       type: 'DELETE_TODO',
-      payload: { id }
+      payload: {id}
     });
   };
 
-  const editTodo = (id, text, done) => {
-    dispatch({
-      type: 'EDIT_TODO',
-      payload: { id, text, done }
+  const editTodo = async (id, text, done) => {
+    const payload = {
+      text,
+      done,
+    };
+
+    await fetch(`http://localhost:3000/todos/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
     });
+
+    dispatch({type: 'EDIT_TODO',  payload: { id, ...payload }});
   };
 
-  const toggleDone = (id, done) => {
-    dispatch({
-      type: 'SELECT_DONE_TODO',
-      payload: { id, done }
+  const toggleDone = async (id, done) => {
+    const payload = {
+      done,
+    };
+
+    await fetch(`http://localhost:3000/todos/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
     });
+
+    dispatch({type: 'EDIT_TODO', payload: {id, ...payload}});
   };
 
   return {

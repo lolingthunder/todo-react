@@ -9,15 +9,18 @@ function App() {
     const [toggleList, setToggleList] = useState(
         JSON.parse(localStorage.getItem('toggleList')) ?? false);
 
-    const [todos, dispatch] = useReducer(todoReducer, [], () => {
-        const local = localStorage.getItem('todos');
-        return local ? JSON.parse(local) : [];
-    });
+    const [todos, dispatch] = useReducer(todoReducer, []);
     const toggleVisibility = () => setToggleList(prev => !prev);
 
     useEffect(() => {
-        localStorage.setItem('todos', JSON.stringify(todos));
-    }, [todos]);
+        fetch('http://localhost:3000/todos', {
+            method: 'GET',
+        })
+            .then(res => res.json())
+            .then(data => {
+                dispatch({type: 'SET_TODOS', payload: data});
+            });
+    }, []);
 
     useEffect(() => {
         localStorage.setItem('toggleList', JSON.stringify(toggleList));
@@ -38,9 +41,7 @@ function App() {
                             {toggleList ? 'Hide' : 'Show'}
                         </label>
                     </div>
-                    {toggleList &&
-                        <TodoList/>
-                    }
+                    { toggleList && <TodoList/> }
                 </div>
             </TodoContext.Provider>
         </>
