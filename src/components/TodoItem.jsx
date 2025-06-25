@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import {useTodo} from "../context/TodoContext.jsx";
+import useTodos from "../context/useTodos.jsx";
 
 function TodoItem({todo}) {
-    const { dispatch } = useTodo();
+    const { editTodo, deleteTodo, toggleDone } = useTodos();
     const [toggleInput, setToggleInput] = useState(false)
     const [editedInput, setEditedInput] = useState('')
 
@@ -19,13 +19,7 @@ function TodoItem({todo}) {
                         <input
                             type="checkbox"
                             checked={todo.done}
-                            onChange={() => dispatch({
-                                type: 'SELECT_DONE_TODO',
-                                payload: {
-                                    id: todo.id,
-                                    done: !todo.done,
-                                }
-                            })}
+                            onChange={() => toggleDone(todo.id, !todo.done)}
                             className="checkbox checkbox-sm mr-2 mb-1"
                         />
                         <span {...todo.done && {className: 'line-through'}}>{todo.time}</span>
@@ -38,12 +32,7 @@ function TodoItem({todo}) {
                             </svg>
                         </button>
                         <button className="btn-circle btn-error btn btn-xs ml-2 mb-1 text-white p-1"
-                                onClick={() => dispatch({
-                                        type: 'DELETE_TODO',
-                                        payload: {
-                                            id: todo.id,
-                                        }
-                                    })}>
+                                onClick={() => deleteTodo(todo.id)}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
                                  stroke="currentColor" className="size-6">
                                 <path strokeLinecap="round" strokeLinejoin="round"
@@ -60,15 +49,7 @@ function TodoItem({todo}) {
                                 <button className="btn btn-soft btn-info btn-sm"
                                         onClick={() => {
                                             setToggleInput(!toggleInput);
-                                            dispatch({
-                                                type: 'EDIT_TODO',
-                                                payload: {
-                                                    id: todo.id,
-                                                    text: editedInput,
-                                                    done: todo.done,
-                                                    time: new Date().toLocaleString()
-                                                }
-                                            })
+                                            editTodo(todo.id, editedInput, todo.done);
                                         }}>Confirm
                                 </button>
                             </div>
